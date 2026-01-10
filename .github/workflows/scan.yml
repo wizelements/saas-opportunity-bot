@@ -1,0 +1,41 @@
+name: SaaS Opportunity Scan
+
+on:
+  schedule:
+    # Runs daily at 8am UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run scanner
+        run: python main.py
+      
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: opportunities-${{ github.run_number }}
+          path: results/
+          retention-days: 30
+      
+      - name: Commit results to repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add results/ || true
+          git diff --staged --quiet || git commit -m "Update opportunities $(date +'%Y-%m-%d')"
+          git push || true
