@@ -9,7 +9,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from scrapers.reddit_scraper import scan_reddit
 from scrapers.hn_scraper import scan_hacker_news
 from config import OUTPUT_DIR
 
@@ -56,8 +55,8 @@ def save_results(opportunities: list[dict], output_dir: str = OUTPUT_DIR):
         if opportunities:
             writer = csv.DictWriter(f, fieldnames=[
                 "priority_score", "source", "title", "text", "url", 
-                "score", "pain_signals", "industries", "type"
-            ])
+                "score", "num_comments", "pain_signals", "industries", "type"
+            ], extrasaction='ignore')
             writer.writeheader()
             for opp in opportunities:
                 row = {
@@ -112,17 +111,6 @@ def main():
     print("=" * 70)
     
     all_opportunities = []
-    
-    # Scan Reddit
-    try:
-        for opp in scan_reddit():
-            opp["priority_score"] = score_opportunity(opp)
-            all_opportunities.append(opp)
-            print(f"  Found: {opp['title'][:50]}...")
-    except KeyboardInterrupt:
-        print("\nReddit scan interrupted, continuing with HN...")
-    except Exception as e:
-        print(f"Reddit error: {e}")
     
     # Scan Hacker News
     try:
