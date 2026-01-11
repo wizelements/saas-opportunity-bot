@@ -35,9 +35,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Import scanner components (using proper package structure)
-from scrapers.hn_scraper import scan_hacker_news
-from config import INDUSTRIES, PAIN_SIGNALS
+# Scanner components imported lazily in functions to avoid startup crashes
+# from scrapers.hn_scraper import scan_hacker_news
+# from config import INDUSTRIES, PAIN_SIGNALS
+
+
+def get_scanner_components():
+    """Lazy load scanner components to avoid import failures at startup."""
+    from scrapers.hn_scraper import scan_hacker_news
+    from config import INDUSTRIES, PAIN_SIGNALS
+    return scan_hacker_news, INDUSTRIES, PAIN_SIGNALS
 
 
 # Request/Response Models (ottomator standard)
@@ -128,6 +135,7 @@ def score_opportunity(opp: dict) -> int:
 
 def run_scan(industry_filter: Optional[str] = None, limit: int = 20) -> List[Dict]:
     """Run the HN scanner and return opportunities."""
+    scan_hacker_news, _, _ = get_scanner_components()
     opportunities = []
     
     for opp in scan_hacker_news():
@@ -187,6 +195,7 @@ def get_industry_summary(opportunities: List[Dict]) -> str:
 
 def parse_user_intent(query: str) -> Dict[str, Any]:
     """Parse user query to determine intent."""
+    _, INDUSTRIES, _ = get_scanner_components()
     query_lower = query.lower()
     
     intent = {
@@ -247,12 +256,14 @@ I scan Hacker News for pain points that indicate SaaS opportunities in high-valu
 • "List signals" - See pain point signals I detect"""
     
     if intent["action"] == "list_industries":
+        _, INDUSTRIES, _ = get_scanner_components()
         lines = ["**Tracked Industries:**"]
         for industry, keywords in INDUSTRIES.items():
             lines.append(f"• **{industry.replace('_', ' ').title()}**: {', '.join(keywords[:5])}...")
         return "\n".join(lines)
     
     if intent["action"] == "list_signals":
+        _, _, PAIN_SIGNALS = get_scanner_components()
         lines = ["**Pain Point Signals I Detect:**"]
         for i, signal in enumerate(PAIN_SIGNALS, 1):
             lines.append(f"{i}. \"{signal}\"")
