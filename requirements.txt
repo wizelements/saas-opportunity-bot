@@ -1,1 +1,13 @@
+# Core dependencies
 requests>=2.28.0
+
+# ottomator agent dependencies
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+httpx>=0.26.0
+anyio>=4.0.0
+
+# Optional: Supabase for conversation history (ottomator Live Agent Studio)
+supabase>=2.3.0

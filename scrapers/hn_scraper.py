@@ -2,8 +2,6 @@
 
 import requests
 from typing import Generator
-import sys
-sys.path.append('..')
 from config import PAIN_SIGNALS, INDUSTRIES, HN_STORIES_TO_CHECK, HN_MIN_COMMENTS
 
 
