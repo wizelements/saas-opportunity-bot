@@ -57,6 +57,7 @@ class AgentRequest(BaseModel):
 
 class AgentResponse(BaseModel):
     success: bool
+    response: Optional[str] = None
 
 
 # LLM Configuration
@@ -379,7 +380,7 @@ async def saas_opportunity_agent(
             data={"request_id": request.request_id}
         )
         
-        return AgentResponse(success=True)
+        return AgentResponse(success=True, response=agent_response)
         
     except Exception as e:
         print(f"Error processing request: {e}")
