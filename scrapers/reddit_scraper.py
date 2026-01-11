@@ -3,8 +3,6 @@
 import requests
 import time
 from typing import Generator
-import sys
-sys.path.append('..')
 from config import SUBREDDITS, PAIN_SIGNALS, INDUSTRIES
 
 
